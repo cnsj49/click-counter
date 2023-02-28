@@ -1,0 +1,38 @@
+replicaCount: 
+  web: 1
+  redis: 1
+
+deployment:
+  name:
+    web: web-app
+    redis: redis-master
+  image:
+    web: chanut995953/chanut:click-counter-v13
+    redis: redis:6.2.5-alpine
+
+secret:
+  name: redis-credentials
+  key: redis-password
+
+service:
+  name:
+    web: web-service
+    redis: redis-service
+  port:
+    web: 80
+    redis: 6379
+  portname:
+    web: http
+    redis: redis
+  targetport:
+    web: 5000
+    redis: 6379
+    
+ingress:
+  enabled: true
+  className: ""
+  name: web-app-ingress
+  host: web-app.example.com
+  path: /
+  pathType: Prefix
+  annotations: {}
