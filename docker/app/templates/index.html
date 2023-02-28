@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Click Counter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    .reset-button {
+      background-color: #b02b4a;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click Counter</h1>
+  <p>The button has been clicked <span id="click-count">{{ click_count }}</span> times.</p>
+  <button id="click-button" class="button">Click me!</button>
+  <form action="/reset">
+    <button type="submit" class="reset-button">Reset</button>
+  </form>
+  <script>
+
+    fetch('/click-count')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('click-count').textContent = data.click_count;
+      });
+    
+
+    document.getElementById('click-button').addEventListener('click', () => {
+      fetch('/click', {method: 'POST'})
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('click-count').textContent = data.click_count;
+        });
+    });
+  </script>
+</body>
+</html>
