@@ -1,0 +1,16 @@
+name: Lab
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - lab
+
+jobs:
+  any_name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Any Name Bash Test Step
+        shell: bash
+        run: |
+          echo "Test"
