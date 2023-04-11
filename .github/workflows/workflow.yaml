@@ -8,7 +8,7 @@ on:
 
 jobs:
   any_name:
-    runs-on: ubuntu-latest
+    runs-on: lab
     steps:
       - name: Test Step
         shell: bash
