@@ -2,12 +2,23 @@ name: Helm-Lab
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'input your software version'
+        required: true
+        default: '1.0.0'
+        type: string
   push:
     branches:
       - helm
 
 jobs:
-
+  show-tag:
+    runs-on: lab
+    stpes:
+      - name: Set Tag on Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "${{ github.event.inputs.tag }}"
   build:
     runs-on: lab
     environment: helm
