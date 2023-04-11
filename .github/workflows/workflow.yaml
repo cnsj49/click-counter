@@ -20,6 +20,8 @@ jobs:
     environment:
       name: helm
     steps:
+      - name: clean
+        run: rm -rf click-counter
       - name: git checkout
         run: git clone -b helm https://github.com/cnsj49/click-counter.git
 
