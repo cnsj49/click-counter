@@ -17,8 +17,7 @@ jobs:
   build:
     runs-on: lab
     needs: prepare
-    environment:
-      name: helm
+    environment: helm
     steps:
       - name: clean
         run: rm -rf click-counter
