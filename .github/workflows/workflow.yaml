@@ -7,10 +7,25 @@ on:
       - lab
 
 jobs:
-  any_name:
+
+  prepare:
     runs-on: lab
     steps:
-      - name: Test Step
-        shell: bash
+      - name: Set Tag on Workflow Dispatch
+        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+
+  build:
+    runs-on: lab
+    needs: prepare
+    steps:
+      - name: git checkout
+        run: git clone -b helm https://github.com/cnsj49/click-counter.git
+
+      - name: docker login
+        run: docker login -u chanut995953 -p ${{ Secrets.DOCKER_REGISTRY }}
+        
+      - name: build and push
         run: |
-          echo "Test"
+          cd click-counter 
+          docker build -t chanut995953/click-counter:$GITHUB_ENV .
+          docker push chanut995953/click-counter:$GITHUB_ENV
