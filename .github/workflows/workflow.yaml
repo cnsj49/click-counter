@@ -35,5 +35,5 @@ jobs:
     needs: build
     steps:
       - name: Helm deploy
-        run: helm upgrade -i click-counter .
+        run: helm upgrade -i click-counter . --set image.web=chanut995953/lab:${{ github.sha }}
     
