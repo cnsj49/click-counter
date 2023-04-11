@@ -17,17 +17,23 @@ jobs:
       
       - name: docker login
         run: docker login -u chanut995953 -p ${{ secrets.DOCKER_REGISTRY }}
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: docker
-          push: true
-          tags: chanut995953/lab:${{ github.sha }}
+
+      - name: build and push
+        run: |
+          docker build -t chanut995953/lab:${{ github.sha }} docker/
+          docker push chanut995953/lab:${{ github.sha }}
+
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+#        with:
+#          context: docker
+#          push: true
+#          tags: chanut995953/lab:${{ github.sha }}
           
   deploy:
     runs-on: lab
+    needs: build
     steps:
       - name: Helm deploy
-        run: helm upgrade --install --create-namespace --set image=chanut995953/lab:${{ github.sha }}
+        run: helm upgrade -i click-counter .
     
