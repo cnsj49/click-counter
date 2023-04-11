@@ -29,8 +29,8 @@ jobs:
           echo ${{ secrets.DOCKER_REGISTRY }}
           docker login -u chanut995953 -p ${{ secrets.DOCKER_REGISTRY }}
         
-      - name: build and push
-        run: |
-          cd click-counter 
-          docker build -t chanut995953/click-counter:${{ github.event.inputs.tag }} .
-          docker push chanut995953/click-counter:${{ github.event.inputs.tag }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ steps.docker_tags.outputs.tags }}
