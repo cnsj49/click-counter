@@ -29,7 +29,7 @@ service:
     redis: 6379
     
 ingress:
-  enabled: true
+  enabled: false
   className: ""
   name: web-app-ingress
   host: web-app.example.com

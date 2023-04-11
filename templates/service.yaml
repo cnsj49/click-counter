@@ -17,9 +17,11 @@ kind: Service
 metadata:
   name: {{ $.Values.service.name.web }}
 spec:
+  type: NodePort
   selector:
     app: {{ $.Values.deployment.name.web }}
   ports:
   - name: {{ $.Values.service.portname.web }}
     port: {{ $.Values.service.port.web }}
     targetPort: {{ $.Values.service.targetport.web }}
+    nodePort: 30007
