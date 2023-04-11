@@ -24,3 +24,10 @@ jobs:
           context: docker
           push: true
           tags: chanut995953/lab:${{ github.sha }}
+          
+  deploy:
+    runs-on: lab
+    steps:
+      - name: Helm deploy
+        run: helm upgrade --install --create-namespace --set image=chanut995953/lab:${{ github.sha }}
+    
