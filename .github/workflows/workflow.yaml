@@ -32,5 +32,5 @@ jobs:
       - name: build and push
         run: |
           cd click-counter 
-          docker build -t chanut995953/click-counter:$GITHUB_ENV .
-          docker push chanut995953/click-counter:$GITHUB_ENV
+          docker build -t chanut995953/click-counter:$IMAGE_TAG .
+          docker push chanut995953/click-counter:$IMAGE_TAG
