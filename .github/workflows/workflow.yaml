@@ -29,5 +29,5 @@ jobs:
       
       - name: Build and push Docker image
         run: |
-            docker build -t chanut995953/chanut:${{ steps.meta.outputs.tags }} .
-            docker push chanut995953/chanut:${{ steps.meta.outputs.tags }}
+            docker build -t ${{ steps.meta.outputs.tags }} .
+            docker push ${{ steps.meta.outputs.tags }}
