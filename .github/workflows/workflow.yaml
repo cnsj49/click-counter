@@ -3,14 +3,11 @@ name: Helm-Lab
 on:
   workflow_dispatch:
     inputs:
-      version:
+      tag:
         description: 'input your software version'
         required: true
         default: '1.0.0'
         type: string
-  push:
-    branches:
-      - helm
 
 jobs:
 
@@ -21,7 +18,7 @@ jobs:
 
       - name: Set Tag on Workflow Dispatch
         if: github.event_name == 'workflow_dispatch'
-        run: echo "${{ github.event.inputs.version.tag }}"
+        run: echo "${{ github.event.inputs.tag }}"
 
       - name: Check out the repo
         uses: actions/checkout@v3
