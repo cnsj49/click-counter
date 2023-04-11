@@ -25,12 +25,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: chanut995953/lab
+          images: chanut995953/lab      
+      - name: Set Tag on Push
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: docker
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-${{ github.job_workflow_sha }}
-          labels: ${{ steps.meta.outputs.labels }}-${{ github.job_workflow_sha }}
+          tags: ${{ steps.meta.outputs.tags }}-${{ env.IMAGE_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}-${{ env.IMAGE_TAG }}
