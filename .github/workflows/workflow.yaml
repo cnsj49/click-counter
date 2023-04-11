@@ -17,6 +17,8 @@ jobs:
   build:
     runs-on: lab
     needs: prepare
+    environment:
+      name: helm
     steps:
       - name: git checkout
         run: git clone -b helm https://github.com/cnsj49/click-counter.git
