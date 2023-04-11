@@ -25,7 +25,9 @@ jobs:
         run: git clone -b helm https://github.com/cnsj49/click-counter.git
 
       - name: docker login
-        run: docker login -u chanut995953 -p ${{ Secrets.DOCKER_REGISTRY }}
+        run: |
+          echo ${{ secrets.DOCKER_REGISTRY }}
+          docker login -u chanut995953 -p ${{ secrets.DOCKER_REGISTRY }}
         
       - name: build and push
         run: |
