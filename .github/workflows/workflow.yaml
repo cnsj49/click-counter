@@ -13,16 +13,16 @@ on:
       - helm
 
 jobs:
-  show-tag:
-    runs-on: lab
-    stpes:
-      - name: Set Tag on Workflow Dispatch
-        if: github.event_name == 'workflow_dispatch'
-        run: echo "${{ github.event.inputs.tag }}"
+
   build:
     runs-on: lab
     environment: helm
     steps:
+
+      - name: Set Tag on Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "${{ github.event.inputs.tag }}"
+        
       - name: Check out the repo
         uses: actions/checkout@v3
       
