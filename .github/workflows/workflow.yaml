@@ -8,19 +8,18 @@ on:
 
 jobs:
 
-  prepare:
-    runs-on: lab
-    steps:
-      - name: Set Tag on Workflow Dispatch
-        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
-
   build:
     runs-on: lab
-    needs: prepare
     environment: helm
     steps:
       - name: clean
         run: rm -rf click-counter
+      - name: Generate tags
+        id: docker_tags
+        uses: dnaka91/action-docker-tags@v0.1
+        with:
+          registries: |
+            docker.io
       - name: git checkout
         run: git clone -b helm https://github.com/cnsj49/click-counter.git
 
