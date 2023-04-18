@@ -1,5 +1,9 @@
 name: Lab-Workflow
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'input your software version'
   push:
     branches:
       - lab
