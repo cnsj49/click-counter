@@ -1,0 +1,16 @@
+name: Lab-Workflow
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: check github environment
+        run: hostname
+  deploy: 
+    runs-on: lab
+    steps:
+      - name: check github environment
+        run: hostname
