@@ -3,21 +3,29 @@ on:
   push:
     branches:
       - lab
+env:
+  WORDING: "Piyapan"
 jobs:
   build: 
     runs-on: ubuntu-latest
+    outputs:
+      image-version: ${{ steps.create-variable.outputs.image-version }}
     steps:
       - name: check github environment
         run: hostname
       
-      - name: create variable 
-        run: echo "BUILD_ARGS=dev-1.0.0" >> $GITHUB_ENV
-
-      - name: build application 
-        run: echo "build for ${{ env.WORDING }} by $BUILD_ARGS"
-        
+      - name: create-variable
+        id: create-variable
+        run: |
+          echo "BUILD_ARGS=prod-1.0.0" >> $GITHUB_ENV
+          echo "::set-output name=image-version::prod-1.0.0"
+      - name: build application
+        run: echo "build for ${{ env.WORDING }} by $BUILD_ARGS "
   deploy: 
-    runs-on: lab
+    runs-on: self-hosted
+    needs: build
     steps:
       - name: check github environment
         run: hostname
+      - name: deploy app
+        run: echo "deploying app version ${{ needs.build.outputs.image-version}}"
