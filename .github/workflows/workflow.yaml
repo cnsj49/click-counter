@@ -16,15 +16,15 @@ jobs:
       image-version: ${{ steps.create-variable.outputs.image-version }}
     steps:
       - name: check github environment
-        run: echo ${GITHUB_REF#refs/*/}
+        run: echo "${GITHUB_REF#refs/*/}"
       
-      - name: create-variable
-        id: create-variable
-        run: |
-          echo "BUILD_ARGS=prod-1.0.0" >> $GITHUB_ENV
-          echo "::set-output name=image-version::prod-1.0.0"
-      - name: build application
-        run: echo "build for ${{ env.WORDING }} by $BUILD_ARGS "
+      #- name: create-variable
+        #id: create-variable
+        #run: |
+         # echo "BUILD_ARGS=prod-1.0.0" >> $GITHUB_ENV
+          #echo "::set-output name=image-version::prod-1.0.0"
+      #- name: build application
+        #run: echo "build for ${{ env.WORDING }} by $BUILD_ARGS "
   deploy: 
     runs-on: self-hosted
     needs: build
