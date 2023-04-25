@@ -16,7 +16,7 @@ jobs:
       image-version: ${{ steps.create-variable.outputs.image-version }}
     steps:
       - name: check github environment
-        run: hostname
+        run: echo ${GITHUB_REF#refs/*/}
       
       - name: create-variable
         id: create-variable
