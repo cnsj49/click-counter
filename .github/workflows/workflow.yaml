@@ -1,38 +1,96 @@
-name: Lab-Workflow
+# This is a basic workflow to help you get started with Actions
+name: test-workflow
+# Controls when the workflow will run
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'input your software version'
+      tag:
+        description: 'Repository branch or tag'
+        required: true
   push:
-    branches:
-      - lab
-env:
-  WORDING: "Piyapan"
+    tags:
+      - '*'
+  # IMAGE_TAG: "release-${{ github.run_number }}"
+  
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build: 
-    runs-on: ubuntu-latest
-    outputs:
-      image-version: ${{ steps.create-variable.outputs.image-version }}
-    steps:
-      - name: check github environment
-        run: |
-          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
-          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
 
-      
-      #- name: create-variable
-        #id: create-variable
-        #run: |
-         # echo "BUILD_ARGS=prod-1.0.0" >> $GITHUB_ENV
-          #echo "::set-output name=image-version::prod-1.0.0"
-      #- name: build application
-        #run: echo "build for ${{ env.WORDING }} by $BUILD_ARGS "
-  deploy: 
-    runs-on: self-hosted
-    needs: build
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: check github environment
-        run: hostname
-      - name: deploy app
-        run: echo "deploying app version ${{ needs.build.outputs.image-version}}"
+      - name: Set Tag on Push
+        if: github.event_name == 'push'
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set Tag on Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      # Build docker images
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: docker login
+        run: docker login -u chanut995953 -p ${{ secrets.DOCKER_REGISTRY }}
+
+      - name: build and push
+        run: |
+          docker build -t chanut995953/lab:${{ env.IMAGE_TAG }} docker/
+          docker push chanut995953/lab:${{ env.IMAGE_TAG }}
+
+  sync-image:
+    needs: build
+    runs-on:  ubuntu-latest
+    name: sync to acr
+    environment:
+      name: prd
+    steps:
+      - name: Set Tag on Push
+        if: github.event_name == 'push'
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set Tag on Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      - name: Log in to the github Container registry
+        if: github.event_name == 'push'
+        run: echo ghcr
+      - name: Log in to the Azure Container registry
+        if: github.event_name == 'push'
+        run: echo acr
+      - name: sync image to ACR
+        if: github.event_name == 'push'
+        run: echo sync
+      - name: clean local tags
+        if: github.event_name == 'push'
+        run: echo clean
+           
+  deploy-microservice:
+    needs: sync-image
+    runs-on:  prd
+    name: Deploy Microservice
+    environment:
+      name: prd
+    steps:
+      - name: Set Tag on Push
+        if: github.event_name == 'push'
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set Tag on Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      - name: Login via Azure CLI
+        id: az-login
+        run: echo login
+      - name: Set Kubernetes Context
+        id: aks-login
+        run: echo setup
+
+      # LOAD HELM CONFIG FOR DEPLOY
+      - name: Load Helm configuration files
+        uses: actions/checkout@v2
+      # HELM DEPLOY OR UPGRADE TO AKS
+      - name: Helm Deploy and Upgrade to AKS
+        id: deploy-app
