@@ -87,4 +87,4 @@ jobs:
 
       # HELM DEPLOY OR UPGRADE TO AKS
       - name: Helm Deploy and Upgrade to AKS
-        id: deploy-app
+        run: echo Deploy
