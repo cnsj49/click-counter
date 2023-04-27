@@ -1,47 +1,96 @@
-name: Helm-Lab
-
+# This is a basic workflow to help you get started with Actions
+name: test-workflow
+# Controls when the workflow will run
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'input your software version'
+        description: 'Repository branch or tag'
         required: true
-        default: '1.0.0'
-        type: string
-
+  push:
+    tags:
+      - '*'
+  # IMAGE_TAG: "release-${{ github.run_number }}"
+  
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
+  # This workflow contains a single job called "build"
   build:
-    runs-on: lab
-    environment: helm
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-
+      - name: Set Tag on Push
+        if: github.event_name == 'push'
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Set Tag on Workflow Dispatch
         if: github.event_name == 'workflow_dispatch'
-        run: echo "${{ github.event.inputs.tag }}"
-
-      - name: Check out the repo
-        uses: actions/checkout@v3
-      
+        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      # Build docker images
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: docker login
         run: docker login -u chanut995953 -p ${{ secrets.DOCKER_REGISTRY }}
 
       - name: build and push
         run: |
-          docker build -t chanut995953/lab:${{ github.sha }} docker/
-          docker push chanut995953/lab:${{ github.sha }}
+          docker build -t chanut995953/lab:${{ env.IMAGE_TAG }} docker/
+          docker push chanut995953/lab:${{ env.IMAGE_TAG }}
 
-#      - name: Build and push Docker image
-#        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-#        with:
-#          context: docker
-#          push: true
-#          tags: chanut995953/lab:${{ github.sha }}
-          
-  deploy:
-    runs-on: lab
+  sync-image:
     needs: build
+    runs-on:  ubuntu-latest
+    name: sync to acr
+    environment:
+      name: prd
     steps:
-      - name: Helm deploy
-        run: helm upgrade -i click-counter . --set image.web=chanut995953/lab:${{ github.sha }}
-    
+      - name: Set Tag on Push
+        if: github.event_name == 'push'
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set Tag on Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      - name: Log in to the github Container registry
+        if: github.event_name == 'push'
+        run: echo ghcr
+      - name: Log in to the Azure Container registry
+        if: github.event_name == 'push'
+        run: echo acr
+      - name: sync image to ACR
+        if: github.event_name == 'push'
+        run: echo sync
+      - name: clean local tags
+        if: github.event_name == 'push'
+        run: echo clean
+           
+  deploy-microservice:
+    needs: sync-image
+    runs-on:  prd
+    name: Deploy Microservice
+    environment:
+      name: prd
+    steps:
+      - name: Set Tag on Push
+        if: github.event_name == 'push'
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set Tag on Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      - name: Login via Azure CLI
+        id: az-login
+        run: echo login
+      - name: Set Kubernetes Context
+        id: aks-login
+        run: echo setup
+
+      # LOAD HELM CONFIG FOR DEPLOY
+      - name: Load Helm configuration files
+        uses: actions/checkout@v2
+      # HELM DEPLOY OR UPGRADE TO AKS
+      - name: Helm Deploy and Upgrade to AKS
+        id: deploy-app
