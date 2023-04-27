@@ -1,6 +1,5 @@
-# This is a basic workflow to help you get started with Actions
 name: test-workflow
-# Controls when the workflow will run
+
 on:
   workflow_dispatch:
     inputs:
@@ -10,17 +9,13 @@ on:
   push:
     tags:
       - '*'
-  # IMAGE_TAG: "release-${{ github.run_number }}"
   
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     environment: helm
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
     steps:
       - name: Set Tag on Push
         if: github.event_name == 'push'
@@ -28,10 +23,10 @@ jobs:
       - name: Set Tag on Workflow Dispatch
         if: github.event_name == 'workflow_dispatch'
         run: echo "IMAGE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+
       - name: Check out the repo
         uses: actions/checkout@v3
-      # Build docker images
+
       - name: docker login
         run: docker login -u chanut995953 -p ${{ secrets.DOCKER_REGISTRY }}
 
