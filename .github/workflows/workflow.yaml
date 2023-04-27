@@ -63,7 +63,7 @@ jobs:
            
   deploy-microservice:
     needs: sync-image
-    runs-on:  prd
+    runs-on:  ubuntu-latest
     name: Deploy Microservice
     environment:
       name: prd
